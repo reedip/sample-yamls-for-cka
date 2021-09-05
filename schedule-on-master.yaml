@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: schedule-pod-on-master
+  name: schedule-pod-on-master
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+  tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - image: httpd:alpine
+    name: tomato
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+
+# Basically , we need 3 things to deploy on master
+# 1. Node Affinity to Master node ( so that the Pod selects the Master Node )
+# 2. Taint on the Master Node ( which is already there, so find that , using kubectl get nodes --show-lables)
+# 3. Toleration of no-schedule taint for the Target Pod
